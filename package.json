@@ -1,6 +1,6 @@
 {
   "name": "access_control_vue",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -16,5 +16,9 @@
   "bugs": {
     "url": "https://github.com/FridaS/AccessControl_Vue/issues"
   },
-  "homepage": "https://github.com/FridaS/AccessControl_Vue#readme"
+  "homepage": "https://github.com/FridaS/AccessControl_Vue#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "element-ui": "^2.3.6"
+  }
 }
