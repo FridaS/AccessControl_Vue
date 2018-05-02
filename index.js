@@ -5,14 +5,15 @@ import { Message } from 'element-ui'
 // 入参：导航权限字符串(逗号','分隔)、操作权限字符串(逗号','分隔)
 // 针对导航权限添加导航守卫，针对操作权限进行axios请求拦截
 
-// 操作权限控制
-const syncLimit = ({ asyncInterface = '' }) => {
+/**
+ * 操作权限控制
+ * @param {axios} 拦截器。必须与预拦截接口的axios相同，否则拦截不到。
+ * @param {asyncInterface} 可访问的异步接口字符串（以逗号‘,’分隔）
+ */
+const syncLimit = ({ axios = axios, asyncInterface = '' }) => {
     // 通过axios请求拦截，来判断和处理操作权限
     axios.interceptors.request.use(
         config => {
-            debugger
-            console.log(config)
-            debugger
             if (!asyncInterface.includes(config.url)) {
                 Message.error('没有权限')
                 return false
@@ -22,7 +23,10 @@ const syncLimit = ({ asyncInterface = '' }) => {
     )
 }
 
-// 全局导航守卫
+/**
+ * 全局导航守卫
+ * @param {syncInterface} 可访问的同步接口字符串（以逗号‘,’分隔）
+ */
 let routerGuard = ({ syncInterface = '' }) => {
     let beforeEach = (to, from, next) => {
         if (syncInterface.includes(to.path)) {
