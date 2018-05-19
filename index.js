@@ -16,28 +16,34 @@ const syncLimit = ({ axios = axios, asyncInterface = '' }) => {
         config => {
             if (!asyncInterface.includes(config.url)) {
                 Message.error('没有权限')
-                return false
+                let result = {
+                    headers: config.headers
+                }
+                return result
             }
             return config
-        }
+        },
+        error => Promise.reject(error)
     )
 }
 
 /**
  * 全局导航守卫
- * @param {syncInterface} 可访问的同步接口字符串（以逗号‘,’分隔）
+ * @param {String} syncInterface 可访问的同步接口字符串（以逗号‘,’分隔）
+ * @param {String} certainPath 所有同步接口（路由地址）的第一级路径，访问该路径redirect到第一个有效的url
  */
-let routerGuard = ({ syncInterface = '' }) => {
+let routerGuard = ({ syncInterface = '', certainPath = '/' }) => {
+    let certainPathLength = certainPath.length
     let beforeEach = (to, from, next) => {
         if (syncInterface.includes(to.path)) {
             // 访问 '/' 或 '/content/' redirect 到第一个有效的url
-            if (to.path === '/' || to.path === '/content/') {
+            if (to.path === '/' || to.path === certainPath) {
                 let routersArr = syncInterface.split(',')
                 // 如果除了 '/404'、'/403' 外没有权限访问的连接，
                 // 则访问 '/' 和 '/content/' 跳/404
                 let firstValidUrl = '/404'
                 for (let router of routersArr) {
-                    if (router.substr(0, 8) === '/content') {
+                    if (router.substr(0, certainPathLength) === certainPath) {
                         firstValidUrl = router
                         break
                     }
