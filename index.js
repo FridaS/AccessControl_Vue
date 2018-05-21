@@ -15,7 +15,9 @@ const syncLimit = ({ axios = axios, asyncInterface = '', showMessage = true }) =
     // 通过axios请求拦截，来判断和处理操作权限
     axios.interceptors.request.use(
         config => {
-            if (!asyncInterface.includes(config.url)) {
+            // 对于get请求，去掉其请求参数
+            let requestUrl = config.url.split('?')[0]
+            if (!asyncInterface.includes(requestUrl)) {
                 showMessage && Message.error('没有权限')
                 config.haveNoRight = true
             }
