@@ -8,18 +8,16 @@ import { Message } from 'element-ui'
 /**
  * 操作权限控制
  * @param {axios} 拦截器。必须与预拦截接口的axios相同，否则拦截不到。
- * @param {asyncInterface} 可访问的异步接口字符串（以逗号‘,’分隔）
+ * @param {String} asyncInterface 可访问的异步接口字符串（以逗号‘,’分隔）
+ * @param {Boolean} showMessage 当没有权限时，是否 message 提示
  */
-const syncLimit = ({ axios = axios, asyncInterface = '' }) => {
+const syncLimit = ({ axios = axios, asyncInterface = '', showMessage = true }) => {
     // 通过axios请求拦截，来判断和处理操作权限
     axios.interceptors.request.use(
         config => {
             if (!asyncInterface.includes(config.url)) {
-                Message.error('没有权限')
-                let result = {
-                    headers: config.headers
-                }
-                return result
+                showMessage && Message.error('没有权限')
+                config.haveNoRight = true
             }
             return config
         },
