@@ -36,11 +36,11 @@ let routerGuard = ({ syncInterface = '', certainPath = '/' }) => {
     let certainPathLength = certainPath.length
     let beforeEach = (to, from, next) => {
         if (syncInterface.includes(to.path)) {
-            // 访问 '/' 或 '/content/' redirect 到第一个有效的url
+            // 访问 '/' 或 certainPath redirect 到第一个有效的url
             if (to.path === '/' || to.path === certainPath) {
                 let routersArr = syncInterface.split(',')
                 // 如果除了 '/404'、'/403' 外没有权限访问的连接，
-                // 则访问 '/' 和 '/content/' 跳/404
+                // 则访问 '/' 和 certainPath 时 跳/404
                 let firstValidUrl = '/404'
                 for (let router of routersArr) {
                     if (router.substr(0, certainPathLength) === certainPath) {
@@ -48,7 +48,7 @@ let routerGuard = ({ syncInterface = '', certainPath = '/' }) => {
                         break
                     }
                 }
-                next({ path: firstValidUrl })
+                next({ path: firstValidUrl, replace: true })
                 return
             }
             next()
