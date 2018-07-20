@@ -10,14 +10,15 @@ import { Message } from 'element-ui'
  * @param {axios} 拦截器。必须与预拦截接口的axios相同，否则拦截不到。
  * @param {String} asyncInterface 可访问的异步接口字符串（以逗号‘,’分隔）
  * @param {Boolean} showMessage 当没有权限时，是否 message 提示
+ * @param {Boolean} switchOn 开关，true-打开操作权限控制开关，false-关闭操作权限控制开关
  */
-const syncLimit = ({ axios = axios, asyncInterface = '', showMessage = true }) => {
+const syncLimit = ({ axios = axios, asyncInterface = '', showMessage = true, switchOn = true }) => {
     // 通过axios请求拦截，来判断和处理操作权限
     axios.interceptors.request.use(
         config => {
             // 对于get请求，去掉其请求参数
             let requestUrl = config.url.split('?')[0]
-            if (!asyncInterface.includes(requestUrl)) {
+            if (switchOn && !asyncInterface.includes(requestUrl)) {
                 showMessage && Message.error('没有权限')
                 config.haveNoRight = true
             }
@@ -31,11 +32,14 @@ const syncLimit = ({ axios = axios, asyncInterface = '', showMessage = true }) =
  * 全局导航守卫
  * @param {String} syncInterface 可访问的同步接口字符串（以逗号‘,’分隔）
  * @param {String} certainPath 所有同步接口（路由地址）的第一级路径，访问该路径redirect到第一个有效的url
+ * @param {Boolean} switchOn 开关，true-打开全局导航守卫开关，false-关闭全局导航守卫开关
  */
-let routerGuard = ({ syncInterface = '', certainPath = '/' }) => {
+let routerGuard = ({ syncInterface = '', certainPath = '/', switchOn = true }) => {
     let certainPathLength = certainPath.length
     let beforeEach = (to, from, next) => {
-        if (syncInterface.includes(to.path)) {
+        if (!switchOn) {
+            next()
+        } else if (syncInterface.includes(to.path)) {
             // 访问 '/' 或 certainPath redirect 到第一个有效的url
             if (to.path === '/' || to.path === certainPath) {
                 let routersArr = syncInterface.split(',')
