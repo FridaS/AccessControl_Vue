@@ -37,9 +37,7 @@ const syncLimit = ({ axios = axios, asyncInterface = '', showMessage = true, swi
 let routerGuard = ({ syncInterface = '', certainPath = '/', switchOn = true }) => {
     let certainPathLength = certainPath.length
     let beforeEach = (to, from, next) => {
-        if (!switchOn) {
-            next()
-        } else if (syncInterface.includes(to.path)) {
+        if (!switchOn || syncInterface.includes(to.path)) {
             // 访问 '/' 或 certainPath redirect 到第一个有效的url
             if (to.path === '/' || to.path === certainPath) {
                 let routersArr = syncInterface.split(',')
