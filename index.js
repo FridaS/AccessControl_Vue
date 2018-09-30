@@ -33,21 +33,29 @@ const syncLimit = ({ axios = axios, asyncInterface = '', showMessage = true, swi
  * @param {String} syncInterface 可访问的同步接口字符串（以逗号‘,’分隔）
  * @param {String} certainPath 所有同步接口（路由地址）的第一级路径，访问该路径redirect到第一个有效的url
  * @param {Boolean} switchOn 开关，true-打开全局导航守卫开关，false-关闭全局导航守卫开关
+ * @param {String} defaultPage 默认跳转的页面，存在时访问根域名('/')或certainPath会跳到defaultPage、否则跳第一个有权限页面
  */
-let routerGuard = ({ syncInterface = '', certainPath = '/', switchOn = true }) => {
+let routerGuard = ({ syncInterface = '', certainPath = '/', switchOn = true, defaultPage }) => {
     let certainPathLength = certainPath.length
     let beforeEach = (to, from, next) => {
-        if (!switchOn || syncInterface.includes(to.path)) {
+        if (defaultPage && to.path === defaultPage) {
+            next()
+        } else if (!switchOn || syncInterface.includes(to.path)) {
             // 访问 '/' 或 certainPath redirect 到第一个有效的url
             if (to.path === '/' || to.path === certainPath) {
                 let routersArr = syncInterface.split(',')
                 // 如果除了 '/404'、'/403' 外没有权限访问的连接，
                 // 则访问 '/' 和 certainPath 时 跳/404
                 let firstValidUrl = '/404'
-                for (let router of routersArr) {
-                    if (router.substr(0, certainPathLength) === certainPath) {
-                        firstValidUrl = router
-                        break
+                // 设置了默认跳转页面，则在访问'/' 或 certainPath 时redirect到默认页面
+                if (defaultPage) {
+                    firstValidUrl = defaultPage
+                } else {
+                    for (let router of routersArr) {
+                        if (router.substr(0, certainPathLength) === certainPath) {
+                            firstValidUrl = router
+                            break
+                        }
                     }
                 }
                 next({ path: firstValidUrl, replace: true })

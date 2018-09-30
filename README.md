@@ -21,17 +21,23 @@ axios.interceptors.request.use(
 // ...
 import AccessControl from 'access_control_vue'
 
+// 区分生产环境，用以控制AccessControl开关是否打开
+const isProduction = process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test'
+
 // 异步接口权限限制
 AccessControl.syncLimit({
     axios: this.$axios,
-    asyncInterface: '异步接口1,异步接口2...'
+    asyncInterface: '异步接口1,异步接口2...',
+    switchOn: isProduction
 })
 
 // 全局导航守卫
 this.$router.beforeEach(
     AccessControl.routerGuard({
         syncInterface: '可访问路由1,可访问路由2...',
-        certainPath: '/certainPath/'
+        certainPath: '/certainPath/',
+        switchOn: isProduction,
+        defaultPage: '/welcomePage'
     })
 )
 
